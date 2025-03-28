@@ -1,5 +1,4 @@
 # EEG-brainhack
-# Brainhack Project: Forecasting Motor Behaviour from EEG Time Series
 
 Welcome to the Brainhack project **"I Know What You Will Do: Forecasting Motor Behaviour from EEG Time Series"**.  
 This repository contains tools, scripts, and documentation aimed at developing a deep learning solution for forecasting EEG time series to predict motor behavior.
