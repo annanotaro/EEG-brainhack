@@ -17,8 +17,6 @@ def bandpass_filter(data, lowcut, highcut, fs, order=5):
     Returns:
         np.ndarray: Filtered data.
     """
-    lowcut = 1.0   # lower cutoff frequency in Hz
-    highcut = 40.0 # upper cutoff frequency in Hz
     nyq = 0.5 * fs
     low = lowcut / nyq
     high = highcut / nyq
@@ -49,8 +47,8 @@ def apply_ica(eeg_data, n_components=None, random_state=42):
 def preprocess_eeg_with_ica(json_filepath, output_filepath=None):
     """
     Loads a JSON file with EEG, EMG, and KIN data, applies a 0.5–40Hz bandpass filter to the EEG data,
-    and then runs ICA on the filtered EEG. The resulting JSON structure is updated with the filtered data,
-    ICA components, mixing matrix, and reconstructed EEG.
+    selects only the allowed channels, and then runs ICA on the filtered EEG. The resulting JSON structure 
+    is updated with the filtered data, ICA components, mixing matrix, and reconstructed EEG.
     
     Parameters:
         json_filepath (str): Path to the input JSON file.
@@ -64,11 +62,24 @@ def preprocess_eeg_with_ica(json_filepath, output_filepath=None):
         data_json = json.load(f)
     
     # Extract EEG data and sampling rate
-    eeg_data = np.array(data_json["EEG"]["data"])
+    eeg_data = np.array(data_json["EEG"]["data"])  # shape: (samples x channels)
     fs = data_json["EEG"]["sampling_rate"]
     
+    # Keep only the allowed channels ---
+    allowed_channels = [
+        "F3", "Fz", "F4",
+        "FC5", "FC1", "FC2", "FC6",
+        "C3", "Cz", "C4",
+        "CP5", "CP1", "CP2", "CP6",
+    ]
+
+    channel_names = data_json["EEG"]["names"]  
+    indices = [i for i, name in enumerate(channel_names) if name in allowed_channels]
+    eeg_data = eeg_data[:, indices]
+    data_json["EEG"]["names"] = [channel_names[i] for i in indices]
+    
     # Apply bandpass filter (0.5-40Hz) on the EEG data
-    filtered_eeg = bandpass_filter(eeg_data, lowcut=1, highcut=40, fs=fs, order=5)
+    filtered_eeg = bandpass_filter(eeg_data, lowcut=0.5, highcut=40, fs=fs, order=5)
     
     # Apply ICA on the filtered EEG data
     # n_components=None uses all available channels.
@@ -88,8 +99,7 @@ def preprocess_eeg_with_ica(json_filepath, output_filepath=None):
     return data_json
 
 if __name__ == '__main__':
-    for i in range(0,9):
-        input_json = f'HS_P1_S1.json'         
-        output_json = f'HS_P1_S1_processed.json'
-        processed_data = preprocess_eeg_with_ica(input_json, output_json)
-        print("Processed EEG data with bandpass filtering and ICA saved to:", output_json)
+    input_json = 'ica code\HS_P1_S1.json'     
+    output_json = f'HS_P1_S1_processed.json'
+    processed_data = preprocess_eeg_with_ica(input_json, output_json)
+    print("Processed EEG data with bandpass filtering and ICA saved to:", output_json)

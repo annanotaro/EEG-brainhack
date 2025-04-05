@@ -3,13 +3,16 @@ import matplotlib.pyplot as plt
 from scipy.signal import welch
 
 # Load the neural components array from the .npy file
-neural_components = np.load("HS_P1_S1_neural_components.npy")
+file_path = 'ica code\HS_P1_S1_eeg.npy'
+neural_components = np.load(file_path)
 
 # Print the shape and some summary statistics
 print("Shape of neural components:", neural_components.shape)
 n_components, n_times = neural_components.shape
 print(f"Number of neural components: {n_components}")
 print(f"Number of time points per component: {n_times}")
+print(neural_components)
+
 
 # Plot time series of a subset of components (plot first 5 or all if less than 5)
 num_plots = min(n_components, 1)
@@ -23,7 +26,7 @@ for i in range(num_plots):
     axes[i].set_ylabel("Amplitude")
 axes[-1].set_xlabel("Time Points")
 plt.tight_layout()
-plt.show()
+#plt.show()
 
 # Plot power spectral density for the same subset of components using Welch's method
 # Assuming a sampling frequency of 500 Hz (adjust if needed)
@@ -39,4 +42,4 @@ for i in range(num_plots):
     axes[i].set_ylabel("PSD (V²/Hz)")
 axes[-1].set_xlabel("Frequency (Hz)")
 plt.tight_layout()
-plt.show()
+#plt.show()
